@@ -18,7 +18,6 @@ foreach ($users as $value) {
    wp_delete_user( $value->ID );
 }*/
 
-
 ?>
 <style>
     li { margin-bottom: 0; }

@@ -203,6 +203,7 @@ HTML;
 HTML;
 
 			if($_POST['dealer_list']) {
+			    $i = 0;
 				foreach ($_POST['dealer_list'] as $item):
 					$userdata = array(
 						'user_login'  =>  str_replace(['directory','/'],'',strtolower($item['url'])), //.wp_rand( 1, 10000 ),
@@ -212,9 +213,14 @@ HTML;
 						'user_pass'   =>  NULL
 					);
 					$new_userid = wp_insert_user( $userdata );
+                    if(empty($new_userid->errors['existing_user_login'])){
 					add_user_meta( $new_userid, 'stm_dealer_url', $item['url'], true );
+                        $i++;
+                    } else {
+                        continue;
+                    }
 				endforeach;
-				$all = count($_POST['dealer_list']);
+				$all = $i; # $all = count($_POST['dealer_list']);
 			} else {
 				$all = 0;
 			}
@@ -388,12 +394,13 @@ HTML;
 						}
 
 						if (!empty($item->price)) {
+							update_post_meta($post_id, 'stm_genuine_price', $item->price);
 							update_post_meta($post_id, 'price', $item->price);
 						}
 
 						if (!empty($item->features)) {
 							wp_add_object_terms($post_id, $item->features, 'stm_additional_features');
-							// wp_set_object_terms also can used (true fourth param)
+							// wp_set_object_terms also can used (true four param)
 							update_post_meta($post_id, 'additional_features', implode(',', $item->features));
 						}
 
