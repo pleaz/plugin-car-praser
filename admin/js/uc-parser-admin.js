@@ -101,35 +101,70 @@
 
         function load(){
             let dealer = $('#dealer');
+            let dealer_m = $('#dealer_m');
             let label = $('#label2');
+            let label3 = $('#label3');
             let spinner = label.prev('.fa-sync');
-            let button = $('#sync_cars');
+            let spinner3 = label3.prev('.fa-sync');
+            let button = $('#sync_cars'); let button2 = $('#save_list'); let button3 = $('#sync_cars_m');
 
-            dealer.empty();
-            dealer.hide();
-            dealer.selectpicker('destroy');
-            spinner.show();
+            dealer.empty(); dealer_m.empty();
+            dealer.hide(); dealer_m.hide();
+            dealer.selectpicker('destroy'); dealer_m.selectpicker('destroy');
+            spinner.show(); spinner3.show();
 
             let data = {
                 action: 'sending',
                 check: 'get_dealers'
             };
             $.post(ajaxurl, data, function(response) {
-                label.show();
+                label.show(); label3.show();
                 let answer = jQuery.parseJSON(response);
                 if(answer){
-                    dealer.show();
+                    dealer.show(); dealer_m.show();
                     let count = Object.keys(answer.message).length;
-                    if(count>0) button.show();
+                    if(count>0) {
+                        button.show(); button2.show(); button3.show();
+                    }
+
                     $.each(answer.message, function (key, entry) {
                         dealer.append($('<option></option>').attr('value', key).text(entry));
-                        if (!--count) dealer.selectpicker('refresh');
+                        if(answer.selected.includes(key)===true) {
+                            dealer_m.append($('<option selected></option>').attr('value', key).text(entry));
+                        } else {
+                            dealer_m.append($('<option></option>').attr('value', key).text(entry));
+                        }
+                        if (!--count) {
+                            dealer.selectpicker('refresh');
+                            dealer_m.selectpicker('refresh');
+                        }
                     });
                 }
-                spinner.hide();
+                spinner.hide();spinner3.hide();
 
             });
         }
+
+        $('#save_list').click(function(){
+            let spinner = $(this).next('.fa-sync');
+            let button = $(this);
+            let dealers_list = $('#dealer_m').val();
+
+            spinner.show();
+            button.hide();
+
+            let data = {
+                action: 'sending',
+                check: 'save_list',
+                dealer_list: dealers_list
+            };
+            $.post(ajaxurl, data, function(response) {
+                let answer = jQuery.parseJSON(response);
+                $('#error').html(answer.status);
+                spinner.hide();
+                button.show();
+            });
+        });
 
         $('#sync_cars').click(function(){
             let spinner = $(this).next('.fa-sync');
@@ -143,6 +178,27 @@
                 action: 'sending',
                 check: 'sync_cars',
                 dealer: dealer
+            };
+            $.post(ajaxurl, data, function(response) {
+                let answer = jQuery.parseJSON(response);
+                $('#error').html(answer.status);
+                spinner.hide();
+                button.show();
+            });
+        });
+
+        $('#sync_cars_m').click(function(){
+            let spinner = $(this).next('.fa-sync');
+            let dealer = $('#dealer_m').val();
+            let button = $(this);
+
+            spinner.show();
+            button.hide();
+
+            let data = {
+                action: 'sending',
+                check: 'sync_cars_m',
+                dealers: dealer
             };
             $.post(ajaxurl, data, function(response) {
                 let answer = jQuery.parseJSON(response);
