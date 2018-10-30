@@ -206,7 +206,7 @@ HTML;
 			    $i = 0;
 				foreach ($_POST['dealer_list'] as $item):
 					$userdata = array(
-						'user_login'  =>  str_replace(['directory','/'],'',strtolower($item['url'])), //.wp_rand( 1, 10000 ),
+						'user_login'  =>  substr(str_replace(['directory','/'],'',strtolower($item['url'])), 0, 60), //.wp_rand( 1, 10000 ),
 						'nickname'    =>  $item['name'],
 						'display_name' => $item['name'],
 						'role'  => 'stm_dealer',
@@ -214,7 +214,7 @@ HTML;
 					);
 					$new_userid = wp_insert_user( $userdata );
                     if(empty($new_userid->errors['existing_user_login'])){
-					add_user_meta( $new_userid, 'stm_dealer_url', $item['url'], true );
+						add_user_meta( $new_userid, 'stm_dealer_url', $item['url'], true );
                         $i++;
                     } else {
                         continue;
