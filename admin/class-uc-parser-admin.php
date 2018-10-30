@@ -680,9 +680,10 @@ HTML;
 					}
 
 					echo json_encode(['status'=>sprintf($success,$data->stats->item_scraped_count), 'message'=>null]);
-					wp_die();
+					//wp_die();
 				}
 				endforeach;
+				wp_die();
 
 			}
 
