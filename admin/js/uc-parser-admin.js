@@ -170,9 +170,11 @@
             let spinner = $(this).next('.fa-sync');
             let dealer = $('#dealer').val();
             let button = $(this);
+            let button2 = $('#sync_cars_m');
 
             spinner.show();
             button.hide();
+            button2.hide();
 
             let data = {
                 action: 'sending',
@@ -184,6 +186,7 @@
                 $('#error').html(answer.status);
                 spinner.hide();
                 button.show();
+                button2.show();
             });
         });
 
@@ -191,9 +194,11 @@
             let spinner = $(this).next('.fa-sync');
             let dealer = $('#dealer_m').val();
             let button = $(this);
+            let button2 = $('#sync_cars');
 
             spinner.show();
             button.hide();
+            button2.hide();
 
             let data = {
                 action: 'sending',
@@ -205,6 +210,7 @@
                 $('#error').html(answer.status);
                 spinner.hide();
                 button.show();
+                button2.show();
             });
         });
 
