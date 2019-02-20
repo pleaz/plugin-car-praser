@@ -129,7 +129,8 @@ class Uc_Parser_Admin {
 			array( $this, 'display_options_page' )
 		);
 
-		add_role( 'stm_dealer', 'STM Dealer', array( 'read' => true, 'level_0' => true ) );
+        add_role( 'stm_dealer', 'STM Dealer', array( 'read' => true, 'level_0' => true ) );
+        add_role( 'ucni_dealers', 'UCNI', array( 'read' => true, 'level_0' => true ) );
 
 	}
 
@@ -172,7 +173,7 @@ HTML;
 </div>
 HTML;
 
-			$request = wp_remote_get( 'http://q.iha6.com:8751/crawl.json?spider_name=dealers&url=https://www.usedcarsni.com/search_results.php?search_type=15%26dcat[]=1%26pagepc0=1', ['timeout' => 7200] );
+            $request = wp_remote_get( 'http://localhost:8943/crawl.json?spider_name=dealers&url=https://www.usedcarsni.com/search_results.php?search_type=15%26dcat[]=1%26pagepc0=1', ['timeout' => 7200] );
 
 			if( is_wp_error( $request ) ) {
 				echo json_encode(['status'=>$error, 'message'=>null]); wp_die(); // Bail early
@@ -202,17 +203,17 @@ HTML;
 </div>
 HTML;
 
-			if($_POST['dealer_list']) {
-			    $i = 0;
-				foreach ($_POST['dealer_list'] as $item):
-					$userdata = array(
-						'user_login'  =>  substr(str_replace(['directory','/'],'',strtolower($item['url'])), 0, 60), //.wp_rand( 1, 10000 ),
-						'nickname'    =>  $item['name'],
-						'display_name' => $item['name'],
-						'role'  => 'stm_dealer',
-						'user_pass'   =>  NULL
-					);
-					$new_userid = wp_insert_user( $userdata );
+            if($_POST['dealer_list']) {
+                $i = 0;
+                foreach ($_POST['dealer_list'] as $item):
+                    $userdata = array(
+                        'user_login'  =>  substr(str_replace(['directory','/'],'',strtolower($item['url'])), 0, 60), //.wp_rand( 1, 10000 ),
+                        'nickname'    =>  $item['name'],
+                        'display_name' => $item['name'],
+                        'role'  => 'ucni_dealers',
+                        'user_pass'   =>  NULL
+                    );
+                    $new_userid = wp_insert_user( $userdata );
                     if(empty($new_userid->errors['existing_user_login'])){
 						add_user_meta( $new_userid, 'stm_dealer_url', $item['url'], true );
                         $i++;
@@ -282,9 +283,9 @@ HTML;
 </div>
 HTML;
 
-				if($_POST['dealer']) {
-					$urls = get_user_meta($_POST['dealer'], 'stm_dealer_url');
-					$request = wp_remote_get( 'http://q.iha6.com:6787/crawl.json?spider_name=cars&url=https://www.usedcarsni.com'.$urls['0'], ['timeout' => 7200] );
+            if($_POST['dealer']) {
+                $urls = get_user_meta($_POST['dealer'], 'stm_dealer_url');
+                $request = wp_remote_get( 'http://localhost:9743/crawl.json?spider_name=cars&url=https://www.usedcarsni.com'.$urls['0'], ['timeout' => 7200] );
 
 					if( is_wp_error( $request ) ) {
 						echo json_encode(['status'=>$error, 'message'=>null]); wp_die(); // Bail early
@@ -497,11 +498,20 @@ HTML;
 </div>
 HTML;
 
-			if($_POST['dealers']) {
+            $success2 = <<<HTML
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Success!</strong> cars found and imported.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+HTML;
 
-				foreach ($_POST['dealers'] as $dealer):
-				$urls = get_user_meta($dealer, 'stm_dealer_url');
-				$request = wp_remote_get( 'http://q.iha6.com:6787/crawl.json?spider_name=cars&url=https://www.usedcarsni.com'.$urls['0'], ['timeout' => 7200] );
+            if($_POST['dealers']) {
+
+                foreach ($_POST['dealers'] as $dealer):
+                    $urls = get_user_meta($dealer, 'stm_dealer_url');
+                    $request = wp_remote_get( 'http://localhost:9743/crawl.json?spider_name=cars&url=https://www.usedcarsni.com'.$urls['0'], ['timeout' => 7200] );
 
 				if( is_wp_error( $request ) ) {
 					echo json_encode(['status'=>$error, 'message'=>null]); wp_die(); // Bail early
@@ -679,11 +689,13 @@ HTML;
 
 					}
 
-					echo json_encode(['status'=>sprintf($success,$data->stats->item_scraped_count), 'message'=>null]);
-					//wp_die();
-				}
-				endforeach;
-				wp_die();
+                        //echo json_encode(['status'=>sprintf($success,$data->stats->item_scraped_count), 'message'=>null]);
+                        //wp_die();
+                    }
+                endforeach;
+                echo json_encode(['status'=>$success2, 'message'=>null]);
+
+                wp_die();
 
 			}
 
